@@ -1,0 +1,43 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+ 
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+ 
+# IntelliJ (nel caso in futuro si cambi IDE)
+.idea/
+*.iws
+*.iml
+*.ipr
+ 
+# VS Code
+.vscode/
+ 
+# Log
+*.log
+logs/
+ 
+# File di sistema OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+ 
+# Variabili d'ambiente / segreti (NON committare mai credenziali reali)
+.env
+.env.local
+*.env
+ 
+# File di build/output vari
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+*.war
+ 
+# Dati locali del database (se in futuro si usano volumi bind-mount)
+/data/
