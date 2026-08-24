@@ -52,11 +52,9 @@ public class AvailabilitySlot {
     private ProfessionalService service;
 	
 	@Column(name = "slot_start", nullable = false)
-	@CreationTimestamp
 	private Instant slotStart;
 	
 	@Column(name = "slot_end", nullable = false)
-	@CreationTimestamp
 	private Instant slotEnd;
 	
 	@Column(name = "is_blocked", nullable = false)

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.apalombidev.schedorex.availability.AvailabilitySlot;
 import com.apalombidev.schedorex.service.ProfessionalService;
 
 import jakarta.persistence.Column;
@@ -55,13 +56,18 @@ public class Booking {
     @ToString.Exclude
     private ProfessionalService service;
 	
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "availability_slot_id", nullable = false)
+    @ToString.Exclude
+    private AvailabilitySlot availabilitySlot;
+	
 	@Column(name="client_name", nullable = false, length = 100)
 	private String clientName;
 	
 	@Column(name="client_email", nullable = false, length = 100)
 	private String clientEmail;
 	
-	@Column(name="client_notes", nullable = false, length = 500)
+	@Column(name="client_notes", length = 500)
 	private String clientNotes;
 	
 	@Enumerated(EnumType.STRING)
@@ -82,8 +88,7 @@ public class Booking {
 	@CreationTimestamp
 	private Instant createdAt;
 	
-	@Column(name = "cancelled_at", nullable = false)
-	@CreationTimestamp
+	@Column(name = "cancelled_at")
 	private Instant cancelledAt;
 	
 	@PrePersist

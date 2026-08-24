@@ -41,3 +41,5 @@ Desktop.ini
  
 # Dati locali del database (se in futuro si usano volumi bind-mount)
 /data/
+/.apt_generated/
+/.apt_generated_tests/
