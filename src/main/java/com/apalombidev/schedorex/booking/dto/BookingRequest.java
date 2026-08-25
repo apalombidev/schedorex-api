@@ -11,9 +11,9 @@ public record BookingRequest(
 
 		@NotNull UUID AvailabilitySlotId,
 
-		@NotBlank String clientName,
+		@NotBlank @Size(max = 100) String clientName,
 
-		@NotBlank @Email String clientEmail,
+		@NotBlank @Email @Size(max = 100) String clientEmail,
 
 		@Size(max = 500) String clientNotes
 
