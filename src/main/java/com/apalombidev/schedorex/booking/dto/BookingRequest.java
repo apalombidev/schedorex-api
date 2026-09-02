@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size;
 
 public record BookingRequest(
 
-		@NotNull UUID AvailabilitySlotId,
+		@NotNull UUID availabilitySlotId,
 
 		@NotBlank @Size(max = 100) String clientName,
 

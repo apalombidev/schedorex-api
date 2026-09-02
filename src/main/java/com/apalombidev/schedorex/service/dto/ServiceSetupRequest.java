@@ -29,7 +29,7 @@ public record ServiceSetupRequest(
 
 		@NotNull @Positive Integer cancellationDeadlineHours,
 
-		@NotNull Boolean StripeEnabled
+		@NotNull Boolean stripeEnabled
 
 ) {
 	
