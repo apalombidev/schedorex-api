@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record LoginResponse(
 
-		String email, Instant expiredAt
+		String email, Instant expiresAt
 
 ) {
 

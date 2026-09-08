@@ -2,6 +2,7 @@ package com.apalombidev.schedorex.availability;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,6 +36,28 @@ public interface AvailabilitySlotRepository extends JpaRepository<AvailabilitySl
     long countByService_IdAndSlotStartGreaterThanEqual(UUID serviceId, Instant from);
     
     boolean existsByService_IdAndSlotStart(UUID serviceId, Instant slotStart);
+    
+    
+    @Query("""
+            SELECT s, b FROM AvailabilitySlot s
+            LEFT JOIN Booking b ON b.availabilitySlot = s AND b.status IN :activeStatuses
+            WHERE s.service.id = :serviceId
+              AND s.slotStart >= :from
+              AND s.slotStart < :to
+            ORDER BY s.slotStart ASC
+            """)
+    List<Object[]> findAdminSlotsWithBookingStatus(
+            @Param("serviceId") UUID serviceId,
+            @Param("from") Instant from,
+            @Param("to") Instant to,
+            @Param("activeStatuses") List<BookingStatus> activeStatuses);
+
+    /**
+     * Usata dal banner dashboard "meno di 7 giorni di slot futuri generati" (v2).
+     * Optional.empty() se il servizio non ha ancora nessuno slot generato.
+     */
+    @Query("SELECT MAX(s.slotStart) FROM AvailabilitySlot s WHERE s.service.id = :serviceId")
+    Optional<Instant> findLatestSlotStart(@Param("serviceId") UUID serviceId);
 
 	
 

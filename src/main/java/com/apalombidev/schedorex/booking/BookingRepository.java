@@ -13,5 +13,14 @@ public interface BookingRepository extends JpaRepository<Booking,UUID>{
 	Optional<Booking> findByStripeCheckoutSessionId(String stripeCheckoutSessionId);
 
 	List<Booking> findByStatusAndStripeCheckoutSessionIdIsNotNull(BookingStatus pending);
+	
+	/**
+	 * Usata da AvailabilityService.setSlotBlocked() per popolare
+	 * AdminSlotResponse.bookingStatus/bookingId dopo un blocco/sblocco
+	 * manuale, senza dover ripetere la query JOIN di findAdminSlotsWithBookingStatus
+	 * per un singolo slot.
+	 */
+	Optional<Booking> findFirstByAvailabilitySlot_IdAndStatusIn(
+	        UUID availabilitySlotId, List<BookingStatus> activeStatuses);
 
 }

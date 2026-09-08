@@ -30,12 +30,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "bookings",
-		uniqueConstraints = @UniqueConstraint(
-		name = "uq_availability_slot_booking",
-		columnNames = {"availability_slot_id"}
-		)
-	)
+@Table(name = "bookings")
+	
 @Getter
 @Setter
 @NoArgsConstructor

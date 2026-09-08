@@ -63,7 +63,7 @@ public class BookingService {
 
         Booking saved;
         try {
-            saved = bookingRepository.save(booking);
+            saved = bookingRepository.saveAndFlush(booking);
         } catch (DataIntegrityViolationException e) {
             // Vincolo UNIQUE(availability_slot_id) violato: un'altra richiesta
             // concorrente ha prenotato lo stesso slot nel frattempo (v2).
