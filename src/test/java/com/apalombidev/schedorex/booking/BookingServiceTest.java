@@ -62,7 +62,7 @@ class BookingServiceTest {
         BookingRequest request = new BookingRequest(slotId, "Mario Rossi", "mario@example.com", null);
 
         // Prima richiesta: salvataggio ok.
-        when(bookingRepository.save(any(Booking.class)))
+        when(bookingRepository.saveAndFlush(any(Booking.class)))
                 .thenReturn(Booking.builder().id(UUID.randomUUID()).availabilitySlot(slot).service(service).build())
                 // Seconda richiesta concorrente: il DB rifiuta per violazione del vincolo UNIQUE.
                 .thenThrow(new org.springframework.dao.DataIntegrityViolationException("uq_availability_slot_booking"));

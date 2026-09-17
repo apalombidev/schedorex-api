@@ -4,6 +4,9 @@ import com.apalombidev.schedorex.auth.dto.LoginRequest;
 import com.apalombidev.schedorex.auth.dto.LoginResponse;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +40,7 @@ public class AuthService {
             throw new InvalidCredentialsException("Credenziali non valide.");
         }
 
-        JwtService.GeneratedToken generated = jwtService.generateToken(admin.getEmail());
+        JwtService.GeneratedToken generated = jwtService.generateToken(admin.getEmail(), List.of("ADMIN"));
         LoginResponse response = new LoginResponse(admin.getEmail(), generated.expiresAt());
         return new AuthResult(response, generated.token());
     }

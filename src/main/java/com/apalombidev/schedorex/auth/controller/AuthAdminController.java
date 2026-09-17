@@ -3,13 +3,13 @@ package com.apalombidev.schedorex.auth.controller;
 import com.apalombidev.schedorex.auth.AuthService;
 import com.apalombidev.schedorex.auth.dto.LoginRequest;
 import com.apalombidev.schedorex.auth.dto.LoginResponse;
+import com.apalombidev.schedorex.config.JwtProperties;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +32,7 @@ import java.time.Instant;
  * cookieSecure esternalizzato (app.jwt.cookie-secure, default false): true
  * in produzione, promemoria per lo Step 8/application.yaml.
  */
+
 @RestController
 @RequestMapping("/api/admin/auth")
 @RequiredArgsConstructor
@@ -40,26 +41,38 @@ public class AuthAdminController {
     private static final String COOKIE_NAME = "jwt";
 
     private final AuthService authService;
-
-    @Value("${app.jwt.cookie-secure:false}")
-    private boolean cookieSecure;
+    private final JwtProperties jwtProperties;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+    public LoginResponse login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
         AuthService.AuthResult result = authService.login(request);
 
         Duration maxAge = Duration.between(Instant.now(), result.response().expiresAt());
 
         ResponseCookie cookie = ResponseCookie.from(COOKIE_NAME, result.jwt())
                 .httpOnly(true)
-                .secure(cookieSecure)
+                .secure(jwtProperties.cookieSecure())
                 .sameSite("Strict")
                 .path("/api/admin")
                 .maxAge(maxAge)
                 .build();
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(result.response());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return result.response();
+    }
+
+    @PostMapping("/logout")
+    public void logout(HttpServletResponse response) {
+        ResponseCookie expiredCookie = ResponseCookie.from(COOKIE_NAME, "")
+                .httpOnly(true)
+                .secure(jwtProperties.cookieSecure())
+                .sameSite("Strict")
+                .path("/api/admin")
+                .maxAge(0)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, expiredCookie.toString());
+        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 }
