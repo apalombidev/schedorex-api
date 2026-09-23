@@ -1,0 +1,33 @@
+package com.apalombidev.schedorex;
+
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+/**
+ * Base per tutti i test di integrazione che necessitano di un DB Postgres
+ * reale (Flyway + Hibernate ddl-auto: validate contro schema vero).
+ *
+ * Il container parte una volta sola per l'intera JVM di test (campo static);
+ * Testcontainers lo ferma automaticamente a fine JVM (Ryuk), nessuno
+ * shutdown esplicito necessario.
+ */
+@Testcontainers
+@ActiveProfiles("test")
+public abstract class AbstractIntegrationTest {
+
+    @Container
+    static final PostgreSQLContainer<?> POSTGRES =
+            new PostgreSQLContainer<>("postgres:16-alpine");
+
+    @DynamicPropertySource
+    static void overrideDatasourceProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
+        registry.add("spring.datasource.username", POSTGRES::getUsername);
+        registry.add("spring.datasource.password", POSTGRES::getPassword);
+        registry.add("spring.datasource.driver-class-name", POSTGRES::getDriverClassName);
+    }
+}

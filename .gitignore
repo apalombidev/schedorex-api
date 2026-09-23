@@ -43,3 +43,5 @@ Desktop.ini
 /data/
 /.apt_generated/
 /.apt_generated_tests/
+src/test/resources/docker-java.properties
+src/test/resources/application-test.yml
