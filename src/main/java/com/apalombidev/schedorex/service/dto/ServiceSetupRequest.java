@@ -13,32 +13,45 @@ import jakarta.validation.constraints.Size;
 
 public record ServiceSetupRequest(
 
-		@NotBlank @Size(max = 100)String professionalName,
+        @NotBlank(message = "{validation.notblank}")
+        @Size(max = 100, message = "{validation.size}")
+        String professionalName,
 
-		@NotBlank  @Size(max = 100) String serviceName,
+        @NotBlank(message = "{validation.notblank}")
+        @Size(max = 100, message = "{validation.size}")
+        String serviceName,
 
-		@NotNull @Positive Integer durationMinutes,
+        @NotNull(message = "{validation.notnull}")
+        @Positive(message = "{validation.positive}")
+        Integer durationMinutes,
 
-		@NotNull @Positive Integer priceCents,
+        @NotNull(message = "{validation.notnull}")
+        @Positive(message = "{validation.positive}")
+        Integer priceCents,
 
-		@NotNull ServiceCurrency currency,
+        @NotNull(message = "{validation.notnull}")
+        ServiceCurrency currency,
 
-		@NotBlank @Size(max = 50) String timezone,
+        @NotBlank(message = "{validation.notblank}")
+        @Size(max = 50, message = "{validation.size}")
+        String timezone,
 
-		@NotNull ServiceLanguage language,
+        @NotNull(message = "{validation.notnull}")
+        ServiceLanguage language,
 
-		@NotNull @Positive Integer cancellationDeadlineHours,
+        @NotNull(message = "{validation.notnull}")
+        @Positive(message = "{validation.positive}")
+        Integer cancellationDeadlineHours,
 
-		@NotNull Boolean stripeEnabled
-
+        @NotNull(message = "{validation.notnull}")
+        Boolean stripeEnabled
 ) {
-	
-	public ServiceSetupRequest {
+    public ServiceSetupRequest {
         if (timezone != null && !timezone.isBlank()) {
             try {
                 ZoneId.of(timezone);
             } catch (DateTimeException e) {
-                throw new IllegalArgumentException("Fuso orario non valido: " + timezone, e);
+                throw new InvalidTimezoneException(timezone);
             }
         }
     }

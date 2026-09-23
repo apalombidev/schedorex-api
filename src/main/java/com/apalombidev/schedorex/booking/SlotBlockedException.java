@@ -1,8 +1,10 @@
 package com.apalombidev.schedorex.booking;
 
-public class SlotBlockedException extends RuntimeException{
-	public SlotBlockedException(String message) {
-		super(message);
-	}
+import com.apalombidev.schedorex.exception.DomainException;
+
+public class SlotBlockedException extends DomainException{
+	public SlotBlockedException() {
+        super("error.slot.blocked");
+    }
 
 }

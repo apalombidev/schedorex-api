@@ -1,8 +1,14 @@
 package com.apalombidev.schedorex.booking;
 
-public class InvalidCancellationTokenException extends RuntimeException{
-	public InvalidCancellationTokenException(String message) {
-		super(message);
-	}
+import com.apalombidev.schedorex.exception.DomainException;
+
+public class InvalidCancellationTokenException extends DomainException{
+	public InvalidCancellationTokenException() {
+        super("error.cancellation.invalid_token");
+    }
+	
+	public InvalidCancellationTokenException(String messageKey) {
+        super(messageKey);
+    }
 
 }

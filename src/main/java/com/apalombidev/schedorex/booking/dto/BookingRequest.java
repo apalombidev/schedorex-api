@@ -9,14 +9,19 @@ import jakarta.validation.constraints.Size;
 
 public record BookingRequest(
 
-		@NotNull UUID availabilitySlotId,
+        @NotNull(message = "{validation.notnull}")
+        UUID availabilitySlotId,
 
-		@NotBlank @Size(max = 100) String clientName,
+        @NotBlank(message = "{validation.notblank}")
+        @Size(max = 100, message = "{validation.size}")
+        String clientName,
 
-		@NotBlank @Email @Size(max = 100) String clientEmail,
+        @NotBlank(message = "{validation.notblank}")
+        @Email(message = "{validation.email}")
+        @Size(max = 100, message = "{validation.size}")
+        String clientEmail,
 
-		@Size(max = 500) String clientNotes
-
+        @Size(max = 500, message = "{validation.size}")
+        String clientNotes
 ) {
-
 }

@@ -42,10 +42,10 @@ public class BookingService {
         ProfessionalService service = serviceSetupService.getServiceEntityOrThrow();
 
         AvailabilitySlot slot = slotRepository.findById(request.availabilitySlotId())
-                .orElseThrow(() -> new SlotNotFoundException("Lo slot richiesto non esiste."));
+                .orElseThrow(SlotNotFoundException::new);
 
         if (Boolean.TRUE.equals(slot.isBlocked())) {
-            throw new SlotBlockedException("Lo slot richiesto non è disponibile.");
+            throw new SlotBlockedException();
         }
 
         BookingStatus initialStatus = Boolean.TRUE.equals(service.getStripeEnabled())
@@ -65,9 +65,7 @@ public class BookingService {
         try {
             saved = bookingRepository.saveAndFlush(booking);
         } catch (DataIntegrityViolationException e) {
-            // Vincolo UNIQUE(availability_slot_id) violato: un'altra richiesta
-            // concorrente ha prenotato lo stesso slot nel frattempo (v2).
-            throw new SlotAlreadyBookedException("Questo slot è appena stato preso, scegline un altro.");
+        	throw new SlotAlreadyBookedException();
         }
 
         return BookingCreatedResponse.fromEntity(saved);
@@ -76,7 +74,7 @@ public class BookingService {
     @Transactional(readOnly = true)
     public BookingResponse getBookingByCancellationToken(UUID token) {
         Booking booking = bookingRepository.findByCancellationToken(token)
-                .orElseThrow(() -> new InvalidCancellationTokenException("Link di cancellazione non valido."));
+        		.orElseThrow(InvalidCancellationTokenException::new);
         return BookingResponse.fromEntity(booking);
     }
 
@@ -87,15 +85,14 @@ public class BookingService {
     @Transactional
     public BookingResponse cancelBooking(UUID token) {
         Booking booking = bookingRepository.findByCancellationToken(token)
-                .orElseThrow(() -> new InvalidCancellationTokenException("Link di cancellazione non valido."));
+        		.orElseThrow(InvalidCancellationTokenException::new);
 
         ProfessionalService service = booking.getService();
         Instant deadline = booking.getAvailabilitySlot().getSlotStart()
                 .minusSeconds(service.getCancellationDeadlineHours() * 3600L);
 
         if (Instant.now().isAfter(deadline)) {
-            throw new CancellationDeadlinePassedException(
-                    "Non è più possibile cancellare questa prenotazione: la soglia oraria è stata superata.");
+            throw new CancellationDeadlinePassedException();
         }
 
         booking.setStatus(BookingStatus.CANCELLED);
@@ -112,7 +109,7 @@ public class BookingService {
     @Transactional
     public BookingResponse cancelBookingAsAdmin(UUID bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new InvalidCancellationTokenException("Prenotazione non trovata."));
+        		 .orElseThrow(() -> new InvalidCancellationTokenException("error.booking.not_found"));
 
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setCancelledAt(Instant.now());

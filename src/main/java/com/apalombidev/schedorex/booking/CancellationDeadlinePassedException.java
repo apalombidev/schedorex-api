@@ -1,8 +1,10 @@
 package com.apalombidev.schedorex.booking;
 
-public class CancellationDeadlinePassedException extends RuntimeException{
-	public CancellationDeadlinePassedException(String message) {
-		super(message);
-	}
+import com.apalombidev.schedorex.exception.DomainException;
+
+public class CancellationDeadlinePassedException extends DomainException{
+	public CancellationDeadlinePassedException() {
+        super("error.cancellation.deadline_passed");
+    }
 
 }

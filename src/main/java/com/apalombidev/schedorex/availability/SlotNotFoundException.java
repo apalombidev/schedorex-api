@@ -1,8 +1,9 @@
 package com.apalombidev.schedorex.availability;
 
-public class SlotNotFoundException extends RuntimeException {
-	public SlotNotFoundException(String message) {
-		super(message);
-	}
+import com.apalombidev.schedorex.exception.DomainException;
 
+public class SlotNotFoundException extends DomainException {
+    public SlotNotFoundException() {
+        super("error.slot.not_found");
+    }
 }

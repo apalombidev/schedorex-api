@@ -1,8 +1,10 @@
 package com.apalombidev.schedorex.auth;
 
-public class InvalidCredentialsException extends RuntimeException{
-	public InvalidCredentialsException(String message) {
-		super(message);
-	}
+import com.apalombidev.schedorex.exception.DomainException;
+
+public class InvalidCredentialsException extends DomainException{
+	public InvalidCredentialsException() {
+        super("error.credentials.invalid");
+    }
 
 }

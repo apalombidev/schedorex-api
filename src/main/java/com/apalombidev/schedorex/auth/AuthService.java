@@ -34,10 +34,11 @@ public class AuthService {
     @Transactional(readOnly = true)
     public AuthResult login(LoginRequest request) {
         AdminUser admin = adminUserRepository.findByEmail(request.email())
-                .orElseThrow(() -> new InvalidCredentialsException("Credenziali non valide."));
+        		.orElseThrow(InvalidCredentialsException::new);
+
 
         if (!passwordEncoder.matches(request.password(), admin.getPasswordHash())) {
-            throw new InvalidCredentialsException("Credenziali non valide.");
+            throw new InvalidCredentialsException();
         }
 
         JwtService.GeneratedToken generated = jwtService.generateToken(admin.getEmail(), List.of("ADMIN"));

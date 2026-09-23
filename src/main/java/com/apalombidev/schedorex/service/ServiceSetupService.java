@@ -4,6 +4,9 @@ import com.apalombidev.schedorex.service.dto.ServiceResponse;
 import com.apalombidev.schedorex.service.dto.ServiceSetupRequest;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.Locale;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +54,21 @@ public class ServiceSetupService {
     public ProfessionalService getServiceEntityOrThrow() {
         return serviceRepository.findAll().stream()
                 .findFirst()
-                .orElseThrow(() -> new ServiceNotFoundException(
-                        "Nessun servizio configurato. Completare il setup iniziale prima di procedere."));
+                .orElseThrow(ServiceNotFoundException::new);
     }
+    
+    /**
+     * Locale corrente della piattaforma, derivata da ProfessionalService.language.
+     * A differenza di getServiceEntityOrThrow(), non lancia se il servizio non è
+     * ancora configurato: usata da LocaleFilter su ogni richiesta, incluse quelle
+     * che arrivano prima del setup iniziale — italiano come default in quel caso.
+     */
+    @Transactional(readOnly = true)
+    public Locale getCurrentLocale() {
+        return serviceRepository.findAll().stream()
+                .findFirst()
+                .map(entity -> entity.getLanguage() == ServiceLanguage.EN ? Locale.ENGLISH : Locale.ITALIAN)
+                .orElse(Locale.ENGLISH);
+    }
+    
 }

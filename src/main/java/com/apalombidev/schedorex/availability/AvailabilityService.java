@@ -122,19 +122,18 @@ public class AvailabilityService {
      */
     private void validateRequest(AvailabilityGenerationRequest request) {
         if (request.endDate().isBefore(request.startDate())) {
-            throw new InvalidAvailabilityRangeException("La data di fine non può precedere la data di inizio.");
+            throw new InvalidAvailabilityRangeException("error.availability.end_before_start");
         }
         if (!request.openingTime().isBefore(request.closingTime())) {
-            throw new InvalidAvailabilityRangeException("L'orario di apertura deve precedere l'orario di chiusura.");
+            throw new InvalidAvailabilityRangeException("error.availability.opening_not_before_closing");
         }
         if (request.lunchBreakStart() != null && request.lunchBreakEnd() != null) {
             if (!request.lunchBreakStart().isBefore(request.lunchBreakEnd())) {
-                throw new InvalidAvailabilityRangeException("L'inizio della pausa pranzo deve precedere la fine.");
+                throw new InvalidAvailabilityRangeException("error.availability.lunch_break_invalid");
             }
             if (request.lunchBreakStart().isBefore(request.openingTime())
                     || request.lunchBreakEnd().isAfter(request.closingTime())) {
-                throw new InvalidAvailabilityRangeException(
-                        "La pausa pranzo deve essere contenuta nell'orario di apertura.");
+                throw new InvalidAvailabilityRangeException("error.availability.lunch_break_outside_hours");
             }
         }
     }
@@ -179,7 +178,7 @@ public class AvailabilityService {
     @Transactional
     public AdminSlotResponse setSlotBlocked(UUID slotId, boolean blocked) {
         AvailabilitySlot slot = slotRepository.findById(slotId)
-                .orElseThrow(() -> new SlotNotFoundException("Slot non trovato."));
+        		.orElseThrow(SlotNotFoundException::new);
         slot.setBlocked(blocked);
         AvailabilitySlot saved = slotRepository.save(slot);
 

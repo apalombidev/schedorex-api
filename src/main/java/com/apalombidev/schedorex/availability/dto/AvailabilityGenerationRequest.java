@@ -10,18 +10,23 @@ import jakarta.validation.constraints.NotNull;
 
 public record AvailabilityGenerationRequest(
 
-		@NotNull LocalDate startDate,
+        @NotNull(message = "{validation.notnull}")
+        LocalDate startDate,
 
-		@NotNull LocalDate endDate,
+        @NotNull(message = "{validation.notnull}")
+        LocalDate endDate,
 
-		@NotEmpty Set<DayOfWeek> activeDays,
+        @NotEmpty(message = "{validation.notempty}")
+        Set<DayOfWeek> activeDays,
 
-		@NotNull LocalTime openingTime,
+        @NotNull(message = "{validation.notnull}")
+        LocalTime openingTime,
 
-		@NotNull LocalTime closingTime,
+        @NotNull(message = "{validation.notnull}")
+        LocalTime closingTime,
 
-		LocalTime lunchBreakStart,
+        LocalTime lunchBreakStart,
 
-		LocalTime lunchBreakEnd) {
-
+        LocalTime lunchBreakEnd
+) {
 }
