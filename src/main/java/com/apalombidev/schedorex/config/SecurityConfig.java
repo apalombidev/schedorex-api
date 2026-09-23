@@ -7,11 +7,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.session.SessionManagementFilter;
 
 import com.apalombidev.schedorex.auth.JwtAuthenticationFilter;
 
@@ -52,29 +55,35 @@ public class SecurityConfig {
 	
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http
-			.csrf(csrf -> csrf
-					.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-					.csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-					.ignoringRequestMatchers("/api/public/**", "/api/admin/auth/login","/api/admin/auth/logout")
-					)
-			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-			.exceptionHandling(ex -> ex
-					.authenticationEntryPoint(restAuthenticationEntryPoint)
-					.accessDeniedHandler(restAccessDeniedHandler)
-					)
-			.authorizeHttpRequests(auth -> auth
-					.requestMatchers("/api/public/**").permitAll()
-					.requestMatchers("/api/admin/auth/login").permitAll()
-					.requestMatchers("/api/admin/auth/logout").permitAll()
-					.requestMatchers("/api/admin/**").hasRole("ADMIN")
-					.anyRequest().denyAll()
-			)
+	    http
+	        .csrf(csrf -> csrf
+	                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+	                .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+	                .ignoringRequestMatchers("/api/public/**", "/api/admin/auth/login", "/api/admin/auth/logout")
+	        )
+	        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+	        .exceptionHandling(ex -> ex
+	                .authenticationEntryPoint(restAuthenticationEntryPoint)
+	                .accessDeniedHandler(restAccessDeniedHandler)
+	        )
+	        .authorizeHttpRequests(auth -> auth
+	                .requestMatchers("/api/public/**").permitAll()
+	                .requestMatchers("/api/admin/auth/login").permitAll()
+	                .requestMatchers("/api/admin/auth/logout").permitAll()
+	                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+	                .anyRequest().denyAll()
+	        )
+	        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+	        .addFilterAfter(new CsrfCookieFilter(), CsrfFilter.class);
 
-		.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-		.addFilterAfter(new CsrfCookieFilter(), CsrfFilter.class); // NUOVO
-		
-		return http.build();
-			
+	    DefaultSecurityFilterChain chain = (DefaultSecurityFilterChain) http.build();
+	    // In uno setup completamente STATELESS non c'è nessuna sessione da gestire:
+	    // SessionManagementFilter comunque scatta ad ogni richiesta (nessuna sessione
+	    // su cui "ricordarsi" di averlo già fatto) e invoca CompositeSessionAuthenticationStrategy
+	    // → CsrfAuthenticationStrategy, cancellando XSRF-TOKEN dopo ogni richiesta admin
+	    // andata a buon fine. Rimosso esplicitamente: CsrfConfigurer lo aggiunge alla
+	    // strategia comunque, non è disattivabile via .sessionAuthenticationStrategy(...).
+	    chain.getFilters().removeIf(SessionManagementFilter.class::isInstance);
+	    return chain;
 	}
 }
