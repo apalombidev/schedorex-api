@@ -1,0 +1,19 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  flyway:
+    enabled: true
+    # Aggiunge db/testdata (solo in src/test/resources) alle migrazioni
+    # standard: il seed dell'AdminUser di test non finisce mai nel jar di
+    # produzione, perché src/test/resources non viene impacchettato.
+    locations: classpath:db/migration,classpath:db/testdata
+
+app:
+  jwt:
+    # Secret di test, minimo 256 bit per HS256 — MAI questo valore fuori dai test.
+    secret: test-only-secret-key-not-for-any-real-environment-min-32-bytes
+    expiration-minutes: 60
+    cookie-secure: false

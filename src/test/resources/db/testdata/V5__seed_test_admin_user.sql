@@ -9,14 +9,16 @@
 --
 -- Hash generato con BCryptPasswordEncoder standard (10 round). Il prefisso
 -- $2b$ è compatibile con Spring Security BCryptPasswordEncoder (supporta
--- $2a$/$2b$/$2y$ in lettura) — verificare comunque al primo run, è
--- un'assunzione basata sul comportamento storico di jBCrypt, non testata
--- contro la versione di Spring Security 7.x effettivamente in uso.
+-- $2a$/$2b$/$2y$ in lettura) — verificato: login riuscito in EndToEndFlowTest
+-- e SecurityEnforcementTest (Step 9).
+--
+-- Nessun ON CONFLICT necessario: eseguita da Testcontainers su un DB
+-- effimero e sempre vuoto a ogni run, non su un DB persistente riusato
+-- (a differenza dello script di seed manuale per il DB locale di sviluppo).
 INSERT INTO admin_users (id, email, password_hash, created_at)
 VALUES (
     gen_random_uuid(),
-    'admin@test.local',
+    'admin@localhost.dev',
     '$2b$10$iOMxyJAaAlZmSzh.kLNQj.Fylyf8wgy7Y.QyCBoRMxy1XKdmo1yL.',
     now()
-    ON CONFLICT (email) DO NOTHING;  -- idempotente: rieseguibile senza errori
 );
