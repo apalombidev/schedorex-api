@@ -24,52 +24,42 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class BookingServiceTest {
 
-    @Mock
-    private BookingRepository bookingRepository;
-    @Mock
-    private AvailabilitySlotRepository slotRepository;
-    @Mock
-    private ServiceSetupService serviceSetupService;
+	@Mock
+	private BookingRepository bookingRepository;
+	@Mock
+	private AvailabilitySlotRepository slotRepository;
+	@Mock
+	private ServiceSetupService serviceSetupService;
 
-    @InjectMocks
-    private BookingService bookingService;
+	@InjectMocks
+	private BookingService bookingService;
 
-    private ProfessionalService service;
-    private AvailabilitySlot slot;
-    private UUID slotId;
+	private ProfessionalService service;
+	private AvailabilitySlot slot;
+	private UUID slotId;
 
-    @BeforeEach
-    void setUp() {
-        slotId = UUID.randomUUID();
-        service = ProfessionalService.builder()
-                .id(UUID.randomUUID())
-                .stripeEnabled(false)
-                .build();
-        slot = AvailabilitySlot.builder()
-                .id(slotId)
-                .service(service)
-                .slotStart(Instant.now().plusSeconds(3600))
-                .slotEnd(Instant.now().plusSeconds(5400))
-                .isBlocked(false)
-                .build();
+	@BeforeEach
+	void setUp() {
+		slotId = UUID.randomUUID();
+		service = ProfessionalService.builder().id(UUID.randomUUID()).stripeEnabled(false).build();
+		slot = AvailabilitySlot.builder().id(slotId).service(service).slotStart(Instant.now().plusSeconds(3600))
+				.slotEnd(Instant.now().plusSeconds(5400)).isBlocked(false).build();
 
-        when(serviceSetupService.getServiceEntityOrThrow()).thenReturn(service);
-        when(slotRepository.findById(slotId)).thenReturn(Optional.of(slot));
-    }
+		when(serviceSetupService.getServiceEntityOrThrow()).thenReturn(service);
+		when(slotRepository.findById(slotId)).thenReturn(Optional.of(slot));
+	}
 
-    @Test
-    void secondBookingOnSameSlotFailsWithSlotAlreadyBookedException() {
-        BookingRequest request = new BookingRequest(slotId, "Mario Rossi", "mario@example.com", null);
+	@Test
+	void secondBookingOnSameSlotFailsWithSlotAlreadyBookedException() {
+		BookingRequest request = new BookingRequest(slotId, "Mario Rossi", "mario@example.com", null);
 
-        // Prima richiesta: salvataggio ok.
-        when(bookingRepository.saveAndFlush(any(Booking.class)))
-                .thenReturn(Booking.builder().id(UUID.randomUUID()).availabilitySlot(slot).service(service).build())
-                // Seconda richiesta concorrente: il DB rifiuta per violazione del vincolo UNIQUE.
-                .thenThrow(new org.springframework.dao.DataIntegrityViolationException("uq_availability_slot_booking"));
+		when(bookingRepository.saveAndFlush(any(Booking.class)))
+				.thenReturn(Booking.builder().id(UUID.randomUUID()).availabilitySlot(slot).service(service).build())
 
-        bookingService.createBooking(request);
+				.thenThrow(new org.springframework.dao.DataIntegrityViolationException("uq_availability_slot_booking"));
 
-        assertThatThrownBy(() -> bookingService.createBooking(request))
-                .isInstanceOf(SlotAlreadyBookedException.class);
-    }
+		bookingService.createBooking(request);
+
+		assertThatThrownBy(() -> bookingService.createBooking(request)).isInstanceOf(SlotAlreadyBookedException.class);
+	}
 }

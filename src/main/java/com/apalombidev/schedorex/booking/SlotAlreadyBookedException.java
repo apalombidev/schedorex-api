@@ -4,7 +4,7 @@ import com.apalombidev.schedorex.exception.DomainException;
 
 public class SlotAlreadyBookedException extends DomainException {
 	public SlotAlreadyBookedException() {
-        super("error.slot.already_booked");
-    }
+		super("error.slot.already_booked");
+	}
 
 }

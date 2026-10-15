@@ -11,10 +11,10 @@ import org.springframework.web.servlet.LocaleResolver;
 @RequiredArgsConstructor
 public class LocaleResolverConfig {
 
-    private final ServiceSetupService serviceSetupService;
+	private final ServiceSetupService serviceSetupService;
 
-    @Bean
-    public LocaleResolver localeResolver() {
-        return new ServiceLanguageLocaleResolver(serviceSetupService);
-    }
+	@Bean
+	public LocaleResolver localeResolver() {
+		return new ServiceLanguageLocaleResolver(serviceSetupService);
+	}
 }

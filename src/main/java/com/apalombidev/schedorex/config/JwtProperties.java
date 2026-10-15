@@ -9,9 +9,6 @@ import jakarta.validation.constraints.Positive;
 @ConfigurationProperties(prefix = "app.jwt")
 @Validated
 public record JwtProperties(
-	
-	@NotBlank String secret,
-	@Positive long expirationMinutes,
-	boolean cookieSecure
-) {
+
+		@NotBlank String secret, @Positive long expirationMinutes, boolean cookieSecure) {
 }

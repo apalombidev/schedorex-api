@@ -12,36 +12,27 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-/**
- * Flusso pubblico di prenotazione (v2): creazione, lettura e cancellazione
- * self-service via cancellation_token — nessun login cliente.
- *
- * Nessun try/catch: SlotNotFoundException, SlotBlockedException,
- * SlotAlreadyBookedException, InvalidCancellationTokenException,
- * CancellationDeadlinePassedException risalgono a GlobalExceptionHandler
- * (Step 6).
- */
 @RestController
 @RequestMapping("/api/public/bookings")
 @RequiredArgsConstructor
 public class BookingPublicController {
 
-    private final BookingService bookingService;
+	private final BookingService bookingService;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public BookingCreatedResponse createBooking(@Valid @RequestBody BookingRequest request) {
-        return bookingService.createBooking(request);
-    }
+	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
+	public BookingCreatedResponse createBooking(@Valid @RequestBody BookingRequest request) {
+		return bookingService.createBooking(request);
+	}
 
-    /** Usato dalla pagina "dettaglio prenotazione" dietro al link della mail. */
-    @GetMapping("/{token}")
-    public BookingResponse getBooking(@PathVariable UUID token) {
-        return bookingService.getBookingByCancellationToken(token);
-    }
+	/** Usato dalla pagina "dettaglio prenotazione" dietro al link della mail. */
+	@GetMapping("/{token}")
+	public BookingResponse getBooking(@PathVariable UUID token) {
+		return bookingService.getBookingByCancellationToken(token);
+	}
 
-    @PostMapping("/{token}/cancel")
-    public BookingResponse cancelBooking(@PathVariable UUID token) {
-        return bookingService.cancelBooking(token);
-    }
+	@PostMapping("/{token}/cancel")
+	public BookingResponse cancelBooking(@PathVariable UUID token) {
+		return bookingService.cancelBooking(token);
+	}
 }

@@ -34,19 +34,15 @@ public class AdminUser {
 	@Column(updatable = false, nullable = false)
 	@EqualsAndHashCode.Include
 	private UUID id;
-	
+
 	@Column(nullable = false, unique = true, length = 100)
 	private String email;
-	
+
 	@Column(name = "password_hash", nullable = false, length = 255)
 	private String passwordHash;
-	
+
 	@Column(name = "created_at", updatable = false, nullable = false)
 	@CreationTimestamp
 	private Instant createdAt;
 
-	
-
-	
-	
 }

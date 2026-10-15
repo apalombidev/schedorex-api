@@ -14,38 +14,33 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Pannello "Genera disponibilità" (v2) + vista/gestione manuale slot
- * (blocco/sblocco, rimandato da v8).
- */
 @RestController
 @RequestMapping("/api/admin/availability")
 @RequiredArgsConstructor
 public class AvailabilityAdminController {
 
-    private final AvailabilityService availabilityService;
+	private final AvailabilityService availabilityService;
 
-    @PostMapping("/generate")
-    public AvailabilityGenerationResponse generateSlots(
-            @Valid @RequestBody AvailabilityGenerationRequest request) {
-        AvailabilityService.GenerationResult result = availabilityService.generateSlots(request);
-        return AvailabilityGenerationResponse.fromResult(result);
-    }
+	@PostMapping("/generate")
+	public AvailabilityGenerationResponse generateSlots(@Valid @RequestBody AvailabilityGenerationRequest request) {
+		AvailabilityService.GenerationResult result = availabilityService.generateSlots(request);
+		return AvailabilityGenerationResponse.fromResult(result);
+	}
 
-    @GetMapping
-    public List<AdminSlotResponse> getAdminSlots(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to) {
-        return availabilityService.getAdminSlots(from, to);
-    }
+	@GetMapping
+	public List<AdminSlotResponse> getAdminSlots(
+			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
+			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to) {
+		return availabilityService.getAdminSlots(from, to);
+	}
 
-    @PostMapping("/{slotId}/block")
-    public AdminSlotResponse blockSlot(@PathVariable UUID slotId) {
-        return availabilityService.setSlotBlocked(slotId, true);
-    }
+	@PostMapping("/{slotId}/block")
+	public AdminSlotResponse blockSlot(@PathVariable UUID slotId) {
+		return availabilityService.setSlotBlocked(slotId, true);
+	}
 
-    @PostMapping("/{slotId}/unblock")
-    public AdminSlotResponse unblockSlot(@PathVariable UUID slotId) {
-        return availabilityService.setSlotBlocked(slotId, false);
-    }
+	@PostMapping("/{slotId}/unblock")
+	public AdminSlotResponse unblockSlot(@PathVariable UUID slotId) {
+		return availabilityService.setSlotBlocked(slotId, false);
+	}
 }

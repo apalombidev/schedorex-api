@@ -18,73 +18,55 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Generazione (e, dallo Step 8, validazione) del JWT admin. Isolata in una
- * classe propria — non dentro AuthService — perché il filtro di sicurezza
- * dello Step 8 dovrà validare lo stesso token su ogni richiesta a
- * /api/admin/**: la logica di firma/parsing va condivisa, non duplicata.
- *
- * generateToken() ritorna un GeneratedToken (token + expiresAt) invece del
- * solo String: AuthService deve costruire LoginResponse.expiresAt con lo
- * stesso istante effettivamente firmato nel JWT, non uno ricalcolato a
- * parte con un secondo Instant.now().
- *
- * Secret fornito via variabile d'ambiente JWT_SECRET (stesso pattern di
- * DB_* in application.yaml, Step 0), minimo 256 bit per HS256. Non ancora
- * aggiunto ad application.yaml — promemoria per lo Step 8.
- */
 @Component
 public class JwtService {
 
-    private final SecretKey key;
-    private final JwtProperties properties;
+	private final SecretKey key;
+	private final JwtProperties properties;
 
-    public JwtService(JwtProperties properties) {
-            this.properties = properties;
-            this.key = Keys.hmacShaKeyFor(properties.secret().getBytes(StandardCharsets.UTF_8));
-    }
+	public JwtService(JwtProperties properties) {
+		this.properties = properties;
+		this.key = Keys.hmacShaKeyFor(properties.secret().getBytes(StandardCharsets.UTF_8));
+	}
 
-    public GeneratedToken generateToken(String subject, List<String> roles) {
-        Instant now = Instant.now();
-        Instant expiresAt = now.plus(properties.expirationMinutes(), ChronoUnit.MINUTES);
+	public GeneratedToken generateToken(String subject, List<String> roles) {
+		Instant now = Instant.now();
+		Instant expiresAt = now.plus(properties.expirationMinutes(), ChronoUnit.MINUTES);
 
-        String jwt = Jwts.builder()
-                .subject(subject)
-                .claim("roles", roles)
-                .issuedAt(Date.from(now))
-                .expiration(Date.from(expiresAt))
-                .signWith(key)
-                .compact();
+		String jwt = Jwts.builder().subject(subject).claim("roles", roles).issuedAt(Date.from(now))
+				.expiration(Date.from(expiresAt)).signWith(key).compact();
 
-        return new GeneratedToken(jwt, expiresAt);
-    }
-    
-    @SuppressWarnings("unchecked")
-    public Optional<TokenPrincipal> validateToken(String token) {
-        if (token == null || token.isBlank()) {
-            return Optional.empty();
-        }
-        try {
-            Jws<Claims> parsed = Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
-            Claims claims = parsed.getPayload();
+		return new GeneratedToken(jwt, expiresAt);
+	}
 
-            String subject = claims.getSubject();
-            if (subject == null || subject.isBlank()) {
-                return Optional.empty();
-            }
+	@SuppressWarnings("unchecked")
+	public Optional<TokenPrincipal> validateToken(String token) {
+		if (token == null || token.isBlank()) {
+			return Optional.empty();
+		}
+		try {
+			Jws<Claims> parsed = Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
+			Claims claims = parsed.getPayload();
 
-            List<String> roles = claims.get("roles", List.class);
-            if (roles == null) {
-                roles = List.of();
-            }
+			String subject = claims.getSubject();
+			if (subject == null || subject.isBlank()) {
+				return Optional.empty();
+			}
 
-            return Optional.of(new TokenPrincipal(subject, roles));
-        } catch (JwtException | IllegalArgumentException e) {
-            return Optional.empty();
-        }
-    }
+			List<String> roles = claims.get("roles", List.class);
+			if (roles == null) {
+				roles = List.of();
+			}
 
-    public record GeneratedToken(String token, Instant expiresAt) {}
-    
-    public record TokenPrincipal(String subject, List<String> roles) {}
+			return Optional.of(new TokenPrincipal(subject, roles));
+		} catch (JwtException | IllegalArgumentException e) {
+			return Optional.empty();
+		}
+	}
+
+	public record GeneratedToken(String token, Instant expiresAt) {
+	}
+
+	public record TokenPrincipal(String subject, List<String> roles) {
+	}
 }

@@ -26,12 +26,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "availability_slots",
-		uniqueConstraints = @UniqueConstraint(
-		name = "uq_service_slot_start",
-		columnNames = {"service_id", "slot_start"}
-		)
-	)
+@Table(name = "availability_slots", uniqueConstraints = @UniqueConstraint(name = "uq_service_slot_start", columnNames = {
+		"service_id", "slot_start" }))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -39,28 +35,28 @@ import lombok.ToString;
 @Builder
 @ToString
 public class AvailabilitySlot {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column(updatable = false, nullable = false)
 	@EqualsAndHashCode.Include
 	private UUID id;
-	
+
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "service_id", nullable = false)
-    @ToString.Exclude
-    private ProfessionalService service;
-	
+	@JoinColumn(name = "service_id", nullable = false)
+	@ToString.Exclude
+	private ProfessionalService service;
+
 	@Column(name = "slot_start", nullable = false)
 	private Instant slotStart;
-	
+
 	@Column(name = "slot_end", nullable = false)
 	private Instant slotEnd;
-	
+
 	@Column(name = "is_blocked", nullable = false)
-    @Builder.Default
+	@Builder.Default
 	boolean isBlocked = false;
-	
+
 	@Column(name = "created_at", updatable = false, nullable = false)
 	@CreationTimestamp
 	private Instant createdAt;
